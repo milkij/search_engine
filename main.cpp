@@ -5,5 +5,6 @@ int main() {
     setlocale(LC_ALL, "ru_RU.UTF-8");
     ConverterJSON* converterJson = new ConverterJSON();
     //converterJson->GetTextDocuments();
-    converterJson->GetRequests();
+    //converterJson->GetRequests();
+
 }

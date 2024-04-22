@@ -94,10 +94,17 @@ std::vector<std::string> ConverterJSON::GetRequests() {
     } else
     {
         auto step=0;
-        for (const auto &i : jsonRequestData["requests"])
+        /*
+         * TODO
+         * нужно сделать парс списков request
+         * проверить длинну слова < 100 символов
+         * одиин запрос менее 11 слов
+         *
+         */
+        for (const auto &item : jsonRequestData["requests"])
         {
-            std::string tempString = i.dump();
-            tempVector.emplace_back(i.dump());
+            std::string tempString = item.dump();
+            tempVector.emplace_back(item.dump());
         }
         return tempVector;
     }
