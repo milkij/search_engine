@@ -4,6 +4,7 @@
 
 #include "ConverterJSON.h"
 #include <sstream>
+#include <typeinfo>
 
 
 ConverterJSON::ConverterJSON() {
@@ -39,6 +40,8 @@ ConverterJSON::ConverterJSON() {
 
 };
 
+
+
 std::vector<std::string> ConverterJSON::GetTextDocuments() {
     std::vector<std::string> result;
     std::string dataFromFile;
@@ -58,6 +61,7 @@ std::vector<std::string> ConverterJSON::GetTextDocuments() {
         //add array
         } else {
             result.push_back(dataFromFile);
+            std::cout << dataFromFile << std::endl;
         }
         //claer string
         dataFromFile.clear();
@@ -66,35 +70,63 @@ std::vector<std::string> ConverterJSON::GetTextDocuments() {
     return result;
 }
 
+
+
 int ConverterJSON::GetResponsesLimit() {
     return responsesLimit;
 }
 
+
+
 std::vector<std::string> ConverterJSON::GetRequests() {
     std::vector<std::string> tempVector;
+    //считаем данные из файла request.json
     std::fstream requestFile(requestsJsonPath);
-    json jsonRequestData = json::parse(requestFile);
+    auto jsonRequestData = json::parse(requestFile);
     requestFile.close();
-    //put data into tempVector from requests.json
-    tempVector = jsonRequestData["requests"];
-    return tempVector;
+    //проверим, что кол-во запросов допустимо
+    if(!checkRequestsLimit(jsonRequestData["requests"]) && jsonRequestData["requests"].size()<1000)
+    {
+        std::cerr << "Responses limit is to mutch. \n"
+                     "Max is " << GetResponsesLimit();
+        return tempVector;
+        //если проверки пройдены запишем каждый массив строк в tempVector вектор
+    } else
+    {
+        auto step=0;
+        for (const auto &i : jsonRequestData["requests"])
+        {
+            std::string tempString = i.dump();
+            tempVector.emplace_back(i.dump());
+        }
+        return tempVector;
+    }
+    //
+
 }
 
+/*TODO*/
 void ConverterJSON::putAnswers(std::vector<std::vector<std::pair<int, float>>> answers) {
 
 }
 
-bool ConverterJSON::countWordsInString(std::string *str) {
-
-    std::stringstream  stream(*str);
-    std::string        oneWord;
-    int       count = 0;
-    while(stream >> oneWord) {
+bool ConverterJSON::countWordsInString(std::string* str) {
+    std::stringstream stream(*str);
+    std::string oneWord;
+    int count = 0;
+    while (stream >> oneWord) {
         ++count;
-        if(oneWord.length()>maxLenOfWord) return false;
-        if(count>maxLenOfWord) return false;
+        if (oneWord.length() > maxLenOfWord) return false;
+        if (count > maxWordsInFile) return false;
+        //
+        return true;
     }
-    return true;
+}
+
+bool ConverterJSON::checkRequestsLimit(json &data) {
+    auto respCount = data.size();
+    if(GetResponsesLimit()<respCount) return false;
+    else return true;
 }
 
 

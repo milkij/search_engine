@@ -42,18 +42,32 @@ private:
 
     int maxLenOfWord = 100;
     int maxWordsInFile = 1000;
+    //
+    int maxWordsInRequest = 10;
+    //
     int responsesLimit;
+    //
     std::string appName;
     std::string appVersion;
     std::vector<std::string> filesPath;
 
     /*
      * Метод подсчета слов и длины слов в строке
-     * @return возвращает true если each word < maxLenOfWord && str < maxWordsInFile
+     * @return возвращает true если each word <= maxLenOfWord && str <= maxWordsInFile
      */
     bool countWordsInString(std::string* str);
 
-
+    /*
+     * Метод поиска слов в файле
+     * @return возвращает true если слова из requests есть в файле
+     */
+    bool findWordInFile(std::string& str);
+    //
+    /*
+    * Метод сравнения кол-ва запрсов из файла request.json с responsesLimit
+    * @return возвращает true или false.
+    */
+    bool checkRequestsLimit(json &data);
 };
 
 
