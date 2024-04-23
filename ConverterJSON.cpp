@@ -105,7 +105,7 @@ std::vector<std::string> ConverterJSON::GetRequests() {
         auto requests = jsonRequestData["requests"];
         for (auto i=0; i<requests.size(); ++i)
         {
-
+//если кол-ва слов больше maxWordsInRequest пропускаем этот запрос
             if (requests[i].size()>this->maxWordsInRequest) {
                 std::cerr << "request00" << (i+1) << " has more then " << this->maxWordsInRequest << " words";
             } else {
@@ -114,6 +114,7 @@ std::vector<std::string> ConverterJSON::GetRequests() {
                  {
                      std::string str = requests[i][j].dump();
                      str.erase(std::remove(str.begin(), str.end(), '"'), str.end());
+                     //если длина слова больше maxLenWordInRequest пропускаем это слова, не записываем .
                      if(str.length()>this->maxLenWordInRequest) {
                          std::cerr << "Lenth of word " << str << " has more then " << this->maxLenWordInRequest
                          << " symbols";
