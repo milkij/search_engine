@@ -4,7 +4,7 @@
 
 #include "ConverterJSON.h"
 #include <sstream>
-#include <typeinfo>
+#include <algorithm>
 
 
 ConverterJSON::ConverterJSON() {
@@ -80,6 +80,7 @@ int ConverterJSON::GetResponsesLimit() {
 
 std::vector<std::string> ConverterJSON::GetRequests() {
     std::vector<std::string> tempVector;
+    std::string buffer;
     //считаем данные из файла request.json
     std::fstream requestFile(requestsJsonPath);
     auto jsonRequestData = json::parse(requestFile);
@@ -95,16 +96,35 @@ std::vector<std::string> ConverterJSON::GetRequests() {
     {
         auto step=0;
         /*
-         * TODO
+         *
          * нужно сделать парс списков request
          * проверить длинну слова < 100 символов
          * одиин запрос менее 11 слов
          *
          */
-        for (const auto &item : jsonRequestData["requests"])
+        auto requests = jsonRequestData["requests"];
+        for (auto i=0; i<requests.size(); ++i)
         {
-            std::string tempString = item.dump();
-            tempVector.emplace_back(item.dump());
+
+            if (requests[i].size()>this->maxWordsInRequest) {
+                std::cerr << "request00" << (i+1) << " has more then " << this->maxWordsInRequest << " words";
+            } else {
+
+                 for (auto j=0; j<requests[i].size(); ++j)
+                 {
+                     std::string str = requests[i][j].dump();
+                     str.erase(std::remove(str.begin(), str.end(), '"'), str.end());
+                     if(str.length()>this->maxLenWordInRequest) {
+                         std::cerr << "Lenth of word " << str << " has more then " << this->maxLenWordInRequest
+                         << " symbols";
+                     } else {
+                         buffer+=str+' ';
+                     }
+                 }
+            }
+
+
+            tempVector.emplace_back(buffer);
         }
         return tempVector;
     }

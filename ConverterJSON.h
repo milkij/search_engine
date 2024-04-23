@@ -40,10 +40,11 @@ private:
     const std::string configJsonPath = "..//config.json";
     const std::string requestsJsonPath = "..//requests.json";
 
-    int maxLenOfWord = 100;
-    int maxWordsInFile = 1000;
+    const int maxLenOfWord = 100;
+    const int maxWordsInFile = 1000;
     //
-    int maxWordsInRequest = 10;
+    const int maxWordsInRequest = 10;
+    const int maxLenWordInRequest = 100;
     //
     int responsesLimit;
     //
