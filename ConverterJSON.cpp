@@ -25,19 +25,8 @@ ConverterJSON::ConverterJSON() {
     responsesLimit=(int)configJsonData["config"]["max_responses"];
     if(responsesLimit<=0) responsesLimit=5;
     filesPath = configJsonData["files"];
-
-
     std::cout << appName << " ver.- " << appVersion << "\n responsesLimit: "
                 << responsesLimit << std::endl;
-
-    /*for(auto &element : configJsonData)
-    {
-        for (auto &element2 : element.items()) {
-            if(element2.key()=="max_responses")
-            std::cout << element2.value() << std::endl;
-        }
-    }*/
-
 };
 
 
@@ -72,7 +61,7 @@ std::vector<std::string> ConverterJSON::GetTextDocuments() {
 
 
 
-int ConverterJSON::GetResponsesLimit() {
+int ConverterJSON::GetResponsesLimit() const {
     return responsesLimit;
 }
 
@@ -94,39 +83,30 @@ std::vector<std::string> ConverterJSON::GetRequests() {
         //если проверки пройдены запишем каждый массив строк в tempVector вектор
     } else
     {
-        auto step=0;
-        /*
-         *
-         * нужно сделать парс списков request
-         * проверить длинну слова < 100 символов
-         * одиин запрос менее 11 слов
-         *
-         */
-        auto requests = jsonRequestData["requests"];
-        for (auto i=0; i<requests.size(); ++i)
-        {
-//если кол-ва слов больше maxWordsInRequest пропускаем этот запрос
-            if (requests[i].size()>this->maxWordsInRequest) {
-                std::cerr << "request00" << (i+1) << " has more then " << this->maxWordsInRequest << " words";
+        for (auto const& i : jsonRequestData["requests"].items()) {
+            if (i.value().size()>this->maxWordsInRequest) {
+                std::cerr << "request00"
+                            << (std::stoi(i.key())+1)
+                                << " has more then "
+                                    << this->maxWordsInRequest
+                                        << " words";
             } else {
-
-                 for (auto j=0; j<requests[i].size(); ++j)
-                 {
-                     std::string str = requests[i][j].dump();
-                     str.erase(std::remove(str.begin(), str.end(), '"'), str.end());
-                     //если длина слова больше maxLenWordInRequest пропускаем это слова, не записываем .
-                     if(str.length()>this->maxLenWordInRequest) {
-                         std::cerr << "Lenth of word " << str << " has more then " << this->maxLenWordInRequest
-                         << " symbols";
-                     } else {
-                         buffer+=str+' ';
-                     }
-                 }
+                for (auto const &j: i.value()) {
+                    auto str = j.dump();
+                    str.erase(std::remove(str.begin(), str.end(), '"'), str.end());
+                    //если длина слова больше maxLenWordInRequest пропускаем это слова, не записываем .
+                    if(str.length()>this->maxLenWordInRequest) {
+                        std::cerr << "Lenth of word " << str << " has more then " << this->maxLenWordInRequest
+                                  << " symbols";
+                    } else {
+                        buffer+=str+' ';
+                    }
+                }
+                tempVector.emplace_back(buffer);
             }
-
-
-            tempVector.emplace_back(buffer);
+            buffer.clear();
         }
+
         return tempVector;
     }
     //
@@ -134,11 +114,11 @@ std::vector<std::string> ConverterJSON::GetRequests() {
 }
 
 /*TODO*/
-void ConverterJSON::putAnswers(std::vector<std::vector<std::pair<int, float>>> answers) {
+void ConverterJSON::putAnswers(std::vector<std::vector<std::pair<int, float>>> &answers) {
 
 }
 
-bool ConverterJSON::countWordsInString(std::string* str) {
+bool ConverterJSON::countWordsInString(std::string* str) const {
     std::stringstream stream(*str);
     std::string oneWord;
     int count = 0;
@@ -147,11 +127,11 @@ bool ConverterJSON::countWordsInString(std::string* str) {
         if (oneWord.length() > maxLenOfWord) return false;
         if (count > maxWordsInFile) return false;
         //
-        return true;
     }
+    return true;
 }
 
-bool ConverterJSON::checkRequestsLimit(json &data) {
+bool ConverterJSON::checkRequestsLimit(json &data) const {
     auto respCount = data.size();
     if(GetResponsesLimit()<respCount) return false;
     else return true;

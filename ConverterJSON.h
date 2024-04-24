@@ -27,14 +27,14 @@ public:
 * Метод считывает поле max_responses для определения предельного * количества ответов на один запрос
 * @return
 */
-    int GetResponsesLimit();
+    int GetResponsesLimit() const;
 /**
 * Метод получения запросов из файла requests.json
 * @return возвращает список запросов из файла requests.json */
     std::vector<std::string> GetRequests();
 /**
 * Положить в файл answers.json результаты поисковых запросов */
-    void putAnswers(std::vector<std::vector<std::pair<int, float>>> answers);
+    void putAnswers(std::vector<std::vector<std::pair<int, float>>> &answers);
     //
 private:
     const std::string configJsonPath = "..//config.json";
@@ -56,7 +56,7 @@ private:
      * Метод подсчета слов и длины слов в строке
      * @return возвращает true если each word <= maxLenOfWord && str <= maxWordsInFile
      */
-    bool countWordsInString(std::string* str);
+    bool countWordsInString(std::string* str) const;
 
     /*
      * Метод поиска слов в файле
@@ -68,7 +68,7 @@ private:
     * Метод сравнения кол-ва запрсов из файла request.json с responsesLimit
     * @return возвращает true или false.
     */
-    bool checkRequestsLimit(json &data);
+    bool checkRequestsLimit(json &data) const;
 };
 
 
