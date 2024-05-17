@@ -35,8 +35,10 @@ std::vector<std::string> ConverterJSON::GetTextDocuments() {
     std::vector<std::string> result;
     std::string dataFromFile;
     for (auto &i : filesPath) {
-        std::ifstream tempFile(i);
-        if(!tempFile) std::cerr << "file " << i << "is not exists" << std::endl;
+        std::ifstream tempFile(i, std::ios_base::in);
+        if(!tempFile) {
+            std::cerr << "[FAIL] "<< i <<" file is missing" << std::endl;
+        }
         //read file
         std::getline(tempFile,dataFromFile);
         //close file
@@ -50,7 +52,7 @@ std::vector<std::string> ConverterJSON::GetTextDocuments() {
         //add array
         } else {
             result.push_back(dataFromFile);
-            std::cout << dataFromFile << std::endl;
+            //std::cout << dataFromFile << std::endl;
         }
         //claer string
         dataFromFile.clear();
@@ -68,54 +70,49 @@ int ConverterJSON::GetResponsesLimit() const {
 
 
 std::vector<std::string> ConverterJSON::GetRequests() {
-    std::vector<std::string> tempVector;
-    std::string buffer;
-    //считаем данные из файла request.json
-    std::fstream requestFile(requestsJsonPath);
-    auto jsonRequestData = json::parse(requestFile);
-    requestFile.close();
-    //проверим, что кол-во запросов допустимо
-    if(!checkRequestsLimit(jsonRequestData["requests"]) && jsonRequestData["requests"].size()<1000)
-    {
-        std::cerr << "Responses limit is to mutch. \n"
-                     "Max is " << GetResponsesLimit();
-        return tempVector;
-        //если проверки пройдены запишем каждый массив строк в tempVector вектор
-    } else
-    {
-        for (auto const& i : jsonRequestData["requests"].items()) {
-            if (i.value().size()>this->maxWordsInRequest) {
-                std::cerr << "request00"
-                            << (std::stoi(i.key())+1)
-                                << " has more then "
-                                    << this->maxWordsInRequest
-                                        << " words";
-            } else {
-                for (auto const &j: i.value()) {
-                    auto str = j.dump();
-                    str.erase(std::remove(str.begin(), str.end(), '"'), str.end());
-                    //если длина слова больше maxLenWordInRequest пропускаем это слова, не записываем .
-                    if(str.length()>this->maxLenWordInRequest) {
-                        std::cerr << "Lenth of word " << str << " has more then " << this->maxLenWordInRequest
-                                  << " symbols";
-                    } else {
-                        buffer+=str+' ';
-                    }
-                }
-                tempVector.emplace_back(buffer);
-            }
-            buffer.clear();
-        }
-
-        return tempVector;
+    std::vector<std::string> list;
+    std::ifstream in_req;
+    in_req.open(requestsJsonPath, std::ios_base::in);
+    if (!in_req.is_open()) {
+        std::cerr << "[FAIL] requests file is missing" << std::endl;
     }
-    //
+    else {
+        nlohmann::json requests;
+        in_req >> requests;
+        if(requests["requests"].size()>GetResponsesLimit()) {
+            std::cerr << "[FAIL] There are too may requests in file.";
+            return list;
+        }
+        for (auto request : requests["requests"].items()) {
+            if(request.value().size()>maxWordsInRequest){
+                std::cerr << "[FAIL] There are too may words in " << std::stoi(request.key())+1 << "-st request.";
+            } else {
+                list.push_back(request.value().dump());
+            }
+        }
+    }
+    in_req.close();
+    return list;
 
 }
 
 /*TODO*/
 void ConverterJSON::putAnswers(std::vector<std::vector<std::pair<int, float>>> &answers) {
-
+    auto requestData = GetRequests();
+    auto textDocumentData = GetTextDocuments();
+    auto jAnswer = json::parse(R"({"answer": []})");
+    for (auto i=0; i<textDocumentData.size(); i++) {
+        auto requestNumber = "request00"+std::to_string(i+1);
+        jAnswer["answer"].push_back(requestNumber);
+        //
+        jAnswer["answer"][i] = json::parse(R"({"result": false, "relevance": []})");
+        //todo find word in file
+        auto isFind = true;
+        //What do I to do?
+        //
+        jAnswer["answer"][i]["result"]=isFind;
+    }
+    std::cout << jAnswer.dump(2);
 }
 
 bool ConverterJSON::countWordsInString(std::string* str) const {
