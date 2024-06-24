@@ -6,25 +6,35 @@
 #include <sstream>
 #include <algorithm>
 
-
+//CONSTRUCTOR
 ConverterJSON::ConverterJSON() {
-    json configJsonData;
+    nlohmann::json configJsonData;
     std::fstream configFile(configJsonPath);
+    //is there config file?
     if(!configFile) {
         std::cerr << "config file is missing";
         return;
     }
-    configJsonData = json::parse(configFile);
+    configJsonData = nlohmann::json::parse(configFile);
     configFile.close();
+    //Does file contain the #attr=config
     if(!configJsonData.contains("config")) {
         std::cerr << "config file is empty";
         return;
     }
+    /*READ & WRITE SETTINGS*/
+    //read name of search_engine
     appName=configJsonData["config"]["name"].dump();
+    //read version of search_engine
     appVersion=configJsonData["config"]["version"].dump();
+    //read max_responses for search_engine
     responsesLimit=(int)configJsonData["config"]["max_responses"];
+    //set default val
     if(responsesLimit<=0) responsesLimit=5;
-    filesPath = configJsonData["files"];
+    //vector
+    filesPathVector = configJsonData["files"];
+
+    //STREAM
     std::cout << appName << " ver.- " << appVersion << "\n responsesLimit: "
                 << responsesLimit << std::endl;
 };
@@ -32,30 +42,48 @@ ConverterJSON::ConverterJSON() {
 
 
 std::vector<std::string> ConverterJSON::GetTextDocuments() {
+    //
     std::vector<std::string> result;
-    std::string dataFromFile;
-    for (auto &i : filesPath) {
-        std::ifstream tempFile(i, std::ios_base::in);
-        if(!tempFile) {
+    std::string current_data_from_file;
+    bool has_too_much_words = false;
+    bool has_length_too_long = false;
+    //
+    for (const auto &i : ConverterJSON::filesPathVector) {
+        std::ifstream buffer(i, std::ios_base::in); //ios::in: файл открывается для ввода (чтения).
+        if(!buffer) //проверим, что по указанному пути файл открылся на чтение, если его нет просто вывыедем сообщение.
+        {
             std::cerr << "[FAIL] "<< i <<" file is missing" << std::endl;
         }
         //read file
-        std::getline(tempFile,dataFromFile);
+        //buffer >> current_data_from_file;
+        std::getline(buffer, current_data_from_file);
         //close file
-        tempFile.close();
+        buffer.close();
         //
-        std::vector<std::string> tempArray;
-        //checks < 1000 words
+        //CHECK current_data_from_file
+        //checks <= 1000 words
+        //checks len of words <= 100
+        std::string one_word;
+        std::stringstream str(current_data_from_file);
+        int counter_of_words = 0;
+
+        while (str >> one_word) {
+            ++counter_of_words;
+            if(counter_of_words>1000) has_too_much_words = true;
+            if(one_word.length()>100) has_length_too_long = true;
+        }
         //
-        if(!countWordsInString(&dataFromFile)) {
-            std::cerr << "incorect data in file " << i << std::endl;
-        //add array
+        if(has_too_much_words) {
+            std::cerr << "File " << i << " has too much words." << std::endl;
+
+        } else if(has_length_too_long){
+            std::cerr << "The length in file " << i << "is too long." << std::endl;
         } else {
-            result.push_back(dataFromFile);
-            //std::cout << dataFromFile << std::endl;
+            //add array
+            result.emplace_back(current_data_from_file);
         }
         //claer string
-        dataFromFile.clear();
+        current_data_from_file.clear();
     }
 
     return result;
@@ -100,12 +128,12 @@ std::vector<std::string> ConverterJSON::GetRequests() {
 void ConverterJSON::putAnswers(std::vector<std::vector<std::pair<int, float>>> &answers) {
     auto requestData = GetRequests();
     auto textDocumentData = GetTextDocuments();
-    auto jAnswer = json::parse(R"({"answer": []})");
+    auto jAnswer = nlohmann::json::parse(R"({"answer": []})");
     for (auto i=0; i<textDocumentData.size(); i++) {
         auto requestNumber = "request00"+std::to_string(i+1);
         jAnswer["answer"].push_back(requestNumber);
         //
-        jAnswer["answer"][i] = json::parse(R"({"result": false, "relevance": []})");
+        jAnswer["answer"][i] = nlohmann::json::parse(R"({"result": false, "relevance": []})");
         //todo find word in file
         auto isFind = true;
         //What do I to do?
@@ -128,7 +156,7 @@ bool ConverterJSON::countWordsInString(std::string* str) const {
     return true;
 }
 
-bool ConverterJSON::checkRequestsLimit(json &data) const {
+bool ConverterJSON::checkRequestsLimit(nlohmann::json &data) const {
     auto respCount = data.size();
     if(GetResponsesLimit()<respCount) return false;
     else return true;

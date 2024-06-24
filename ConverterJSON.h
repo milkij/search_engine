@@ -12,7 +12,7 @@
 #include <vector>
 #include <string>
 
-using json = nlohmann::json;
+//using json = nlohmann::json;
 
 class ConverterJSON {
 public:
@@ -37,20 +37,26 @@ public:
     void putAnswers(std::vector<std::vector<std::pair<int, float>>> &answers);
     //
 private:
+    /*PATHS*/
     const std::string configJsonPath = "..//config.json";
     const std::string requestsJsonPath = "..//requests.json";
 
+    /*CONFIG DATA*/
+    std::string appName;
+    std::string appVersion;
+    std::vector<std::string> filesPathVector;
+    int responsesLimit;
+
+
+    /*RULS*/
     const int maxLenOfWord = 100;
     const int maxWordsInFile = 1000;
     //
     const int maxWordsInRequest = 10;
     const int maxLenWordInRequest = 100;
     //
-    int responsesLimit;
-    //
-    std::string appName;
-    std::string appVersion;
-    std::vector<std::string> filesPath;
+
+
 
     /*
      * Метод подсчета слов и длины слов в строке
@@ -68,7 +74,7 @@ private:
     * Метод сравнения кол-ва запрсов из файла request.json с responsesLimit
     * @return возвращает true или false.
     */
-    bool checkRequestsLimit(json &data) const;
+    bool checkRequestsLimit(nlohmann::json &data) const;
 };
 
 
