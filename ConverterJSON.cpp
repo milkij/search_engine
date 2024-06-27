@@ -7,6 +7,7 @@
 #include <algorithm>
 
 //CONSTRUCTOR
+//#done
 ConverterJSON::ConverterJSON() {
     nlohmann::json configJsonData;
     std::fstream configFile(configJsonPath);
@@ -40,7 +41,7 @@ ConverterJSON::ConverterJSON() {
 };
 
 
-
+//#done
 std::vector<std::string> ConverterJSON::GetTextDocuments() {
     //
     std::vector<std::string> result;
@@ -69,8 +70,9 @@ std::vector<std::string> ConverterJSON::GetTextDocuments() {
 
         while (str >> one_word) {
             ++counter_of_words;
-            if(counter_of_words>1000) has_too_much_words = true;
-            if(one_word.length()>100) has_length_too_long = true;
+//#fix
+            if(counter_of_words>ConverterJSON::maxWordsInFile) has_too_much_words = true;
+            if(one_word.length()>ConverterJSON::maxLenOfWordInFile) has_length_too_long = true;
         }
         //
         if(has_too_much_words) {
@@ -90,7 +92,7 @@ std::vector<std::string> ConverterJSON::GetTextDocuments() {
 }
 
 
-
+//#done
 int ConverterJSON::GetResponsesLimit() const {
     return responsesLimit;
 }
@@ -99,27 +101,53 @@ int ConverterJSON::GetResponsesLimit() const {
 
 std::vector<std::string> ConverterJSON::GetRequests() {
     std::vector<std::string> list;
-    std::ifstream in_req;
-    in_req.open(requestsJsonPath, std::ios_base::in);
-    if (!in_req.is_open()) {
+    std::ifstream f_request_json;
+    f_request_json.open(ConverterJSON::requestsJsonPath, std::ios_base::in);
+    if (!f_request_json.is_open()) {
         std::cerr << "[FAIL] requests file is missing" << std::endl;
     }
     else {
-        nlohmann::json requests;
-        in_req >> requests;
-        if(requests["requests"].size()>GetResponsesLimit()) {
-            std::cerr << "[FAIL] There are too may requests in file.";
+        nlohmann::ordered_json requests_buffer_json;
+        requests_buffer_json = nlohmann::json::parse(f_request_json);
+        //
+        if(requests_buffer_json["requests"].size() > ConverterJSON::maxRequests) {
+            std::cerr << "[FAIL] There are too may requests_buffer_json in file.";
             return list;
         }
-        for (auto request : requests["requests"].items()) {
-            if(request.value().size()>maxWordsInRequest){
+        for (auto request : requests_buffer_json["requests"].items()) {
+            //
+            auto j_string = request.value().template get<std::string>();
+            //
+            if(request.value().size() > ConverterJSON::maxWordsInRequest){
                 std::cerr << "[FAIL] There are too may words in " << std::stoi(request.key())+1 << "-st request.";
             } else {
-                list.push_back(request.value().dump());
+                //do check small letters in string
+                auto is_valid_string = true;
+                auto start_pos_ascii = 97;
+                auto end_pos_ascii = 122;
+                auto space_ascii = 32;
+                //using var j_string
+                for(auto i = 0; i<j_string.length(); ++i)
+                {
+                    if(((int)j_string[i] >= start_pos_ascii and (int)j_string[i]<=end_pos_ascii)
+                        || (int)j_string[i]==space_ascii) {
+                        continue;
+                    } else {
+                        is_valid_string = false;
+                        std::cerr << "[FAIL] \n"
+                                     "litteral should be in latinael lowercase constant \n"
+                                     << std::stoi(request.key())+1 << "-st request: wrong symbol is "
+                                     << j_string[i]
+                                     <<"\n";
+
+                        break;
+                    }
+                }
+                if(is_valid_string) list.push_back(j_string);
             }
         }
     }
-    in_req.close();
+    f_request_json.close();
     return list;
 
 }
@@ -149,7 +177,7 @@ bool ConverterJSON::countWordsInString(std::string* str) const {
     int count = 0;
     while (stream >> oneWord) {
         ++count;
-        if (oneWord.length() > maxLenOfWord) return false;
+        if (oneWord.length() > maxLenOfWordInFile) return false;
         if (count > maxWordsInFile) return false;
         //
     }

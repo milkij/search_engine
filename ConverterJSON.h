@@ -49,18 +49,18 @@ private:
 
 
     /*RULS*/
-    const int maxLenOfWord = 100;
+    const int maxLenOfWordInFile = 100;
     const int maxWordsInFile = 1000;
     //
     const int maxWordsInRequest = 10;
-    const int maxLenWordInRequest = 100;
+    const int maxRequests = 100;
     //
 
 
 
     /*
      * Метод подсчета слов и длины слов в строке
-     * @return возвращает true если each word <= maxLenOfWord && str <= maxWordsInFile
+     * @return возвращает true если each word <= maxLenOfWordInFile && str <= maxWordsInFile
      */
     bool countWordsInString(std::string* str) const;
 
