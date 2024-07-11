@@ -1,10 +1,12 @@
 //
 // Created by Александр Широков on 30.03.2024.
 //
-
+#pragma once
 #include "ConverterJSON.h"
 #include <sstream>
 #include <algorithm>
+#include <filesystem>
+
 
 //CONSTRUCTOR
 //#done
@@ -34,6 +36,16 @@ ConverterJSON::ConverterJSON() {
     if(responsesLimit<=0) responsesLimit=5;
     //vector
     filesPathVector = configJsonData["files"];
+    //
+    bool isExistsAnswersJson = std::filesystem::exists(ConverterJSON::answersJsonPath);
+    if(!isExistsAnswersJson) {
+        //if not exists --> create
+        std::ofstream tempAnswersJson(ConverterJSON::answersJsonPath);
+        tempAnswersJson.close();
+    }
+
+
+
 
     //STREAM
     std::cout << appName << " ver.- " << appVersion << "\n responsesLimit: "
@@ -114,7 +126,7 @@ std::vector<std::string> ConverterJSON::GetRequests() {
             std::cerr << "[FAIL] There are too may requests_buffer_json in file.";
             return list;
         }
-        for (auto request : requests_buffer_json["requests"].items()) {
+        for (const auto &request : requests_buffer_json["requests"].items()) {
             //
             auto j_string = request.value().template get<std::string>();
             //
@@ -152,42 +164,35 @@ std::vector<std::string> ConverterJSON::GetRequests() {
 
 }
 
-/*TODO*/
+
 void ConverterJSON::putAnswers(std::vector<std::vector<std::pair<int, float>>> &answers) {
-    auto requestData = GetRequests();
-    auto textDocumentData = GetTextDocuments();
-    auto jAnswer = nlohmann::json::parse(R"({"answer": []})");
-    for (auto i=0; i<textDocumentData.size(); i++) {
-        auto requestNumber = "request00"+std::to_string(i+1);
-        jAnswer["answer"].push_back(requestNumber);
-        //
-        jAnswer["answer"][i] = nlohmann::json::parse(R"({"result": false, "relevance": []})");
-        //todo find word in file
-        auto isFind = true;
-        //What do I to do?
-        //
-        jAnswer["answer"][i]["result"]=isFind;
+// используем ordered_json при формировании ответа для сохранения порядка вставки ответов
+    std::string answers_root = "answers";
+    nlohmann::ordered_json json_answers_file_content;
+    std::stringstream request_template;
+    size_t answer_id = 0;
+    for(auto& answer: answers) {
+        // формируем шаблон для вставки в json вида request0000
+        request_template << "request" << std::setw(4) << std::setfill('0') << ++answer_id;
+        json_answers_file_content[answers_root][request_template.str()];
+
+        // создаём вектор для хранения ответов
+        nlohmann::ordered_json json_answer_vector;
+        nlohmann::ordered_json json_answer;
+        for(auto& [doc_id, rank] : answer) {
+            json_answer["doc_id"] = doc_id;
+            // При выводе в файл пренебрегаем точностью
+            json_answer["rank"] = rank;
+            json_answer_vector.push_back(json_answer);
+        }
+        json_answers_file_content[answers_root][request_template.str()].push_back(json_answer_vector);
+        request_template.str(std::string());
     }
-    std::cout << jAnswer.dump(2);
+
+    std::ofstream answers_file("../answers.json");
+    answers_file << std::setw(4) << json_answers_file_content;
 }
 
-bool ConverterJSON::countWordsInString(std::string* str) const {
-    std::stringstream stream(*str);
-    std::string oneWord;
-    int count = 0;
-    while (stream >> oneWord) {
-        ++count;
-        if (oneWord.length() > maxLenOfWordInFile) return false;
-        if (count > maxWordsInFile) return false;
-        //
-    }
-    return true;
-}
 
-bool ConverterJSON::checkRequestsLimit(nlohmann::json &data) const {
-    auto respCount = data.size();
-    if(GetResponsesLimit()<respCount) return false;
-    else return true;
-}
 
 
