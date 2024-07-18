@@ -3,6 +3,7 @@
 #include "InvertedIndex.h"
 #include <sstream>
 #include <utility>
+#include <thread>
 
 
 
@@ -22,10 +23,17 @@ struct RelativeIndex{
 
 int main(int argc, char* argv[]) {
     setlocale(LC_ALL, "ru_RU.UTF-8");
+    std::cout <<"Main Id: "<< std::this_thread::get_id() << std::endl;
+
+
+
+
     ConverterJSON converterJson =  ConverterJSON();
     InvertedIndex invertedIndex = InvertedIndex();
 
     invertedIndex.UpdateDocumentBase(converterJson.GetTextDocuments());
+
+
 
     return 0;
 }

@@ -20,21 +20,34 @@ void InvertedIndex::UpdateDocumentBase(std::vector<std::string> input_docs) {
     for (const auto &_doc : input_docs) this->docs.emplace_back(_doc);
     //
     std::vector<std::string> temp_string_vector;
+    //threads
+    std::vector<std::thread> threadVector;
+    //mutex
+    std::mutex mutex_vector;
+
     for (auto doc=0; doc<this->docs.size(); ++doc) {
-        std::string one_word;
-        std::stringstream str(this->docs[doc]);
-        std::mutex add_file_access;
-        std::cout <<"Id: "<< std::this_thread::get_id() << std::endl;
-        auto fx=[&str, &one_word, &temp_string_vector, &add_file_access] () {
-            std::cout <<"Id: "<< std::this_thread::get_id() << std::endl;
-            add_file_access.lock();
-            while (str >> one_word) temp_string_vector.push_back(one_word);
-            add_file_access.unlock();
-        };
-        std::thread new_file(fx);
-        new_file.join();
+
+        threadVector.emplace_back(std::thread([&](){
+            std::cout <<"Thread " << doc <<" – Id: "<< std::this_thread::get_id() << std::endl;
+            std::string one_word;
+            std::stringstream str(this->docs[doc]);
+
+            mutex_vector.lock();
+            while (str >> one_word) {
+                temp_string_vector.push_back(one_word);
+            }
+            mutex_vector.unlock();
+
+        }));
+
 
     }
+
+    for (auto i=0; i<threadVector.size();++i) {
+        threadVector[i].join();
+    }
+
+
     //sort temp_string_vector
     std::sort(temp_string_vector.begin(), temp_string_vector.end());
     //do unique temp_string_vector
