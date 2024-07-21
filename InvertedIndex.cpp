@@ -25,7 +25,7 @@ void InvertedIndex::UpdateDocumentBase(std::vector<std::string> input_docs) {
     //mutex
     std::mutex mutex_vector;
 
-    for (auto doc=0; doc<this->docs.size(); ++doc) {
+    for (auto doc=0; doc<this->docs.size(); ) {
 
         threadVector.emplace_back(std::thread([&](){
             std::cout <<"Thread " << doc <<" – Id: "<< std::this_thread::get_id() << std::endl;
@@ -36,6 +36,7 @@ void InvertedIndex::UpdateDocumentBase(std::vector<std::string> input_docs) {
             while (str >> one_word) {
                 temp_string_vector.push_back(one_word);
             }
+            ++doc;
             mutex_vector.unlock();
 
         }));
