@@ -7,7 +7,7 @@ set(JSON_BuildTests OFF CACHE INTERNAL "")
 
 add_subdirectory(nlohmann_json)
 
-add_executable(search_engine main.cpp ConverterJSON.cpp ConverterJSON.h gtests/myTests.cpp InvertedIndex.cpp InvertedIndex.h)
+add_executable(search_engine main.cpp ConverterJSON.cpp ConverterJSON.h gtests/myTests.cpp InvertedIndex.cpp InvertedIndex.h Timer.cpp Timer.h)
 
 target_link_libraries(search_engine PRIVATE nlohmann_json::nlohmann_json)
 

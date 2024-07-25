@@ -38,6 +38,7 @@ private:
     std::map<std::string, std::vector<Entry>> freq_dictionary;
 
 
+    void print_freq_dictionary();
 };
 
 

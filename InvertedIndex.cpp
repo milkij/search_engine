@@ -17,33 +17,30 @@ Entry::Entry(size_t _doc_id, size_t _count) : doc_id(_doc_id), count(_count)
 }
 
 void InvertedIndex::UpdateDocumentBase(std::vector<std::string> input_docs) {
-    for (const auto &_doc : input_docs) this->docs.emplace_back(_doc);
-    //
     std::vector<std::string> temp_string_vector;
     //threads
     std::vector<std::thread> threadVector;
     //mutex
-    std::mutex mutex_vector;
-
-    for (auto doc=0; doc<this->docs.size(); ) {
-
-        threadVector.emplace_back(std::thread([&](){
-            std::cout <<"Thread " << doc <<" – Id: "<< std::this_thread::get_id() << std::endl;
+    std::mutex mutex_vector_collection;
+    //
+    for (const auto &_doc : input_docs) {
+        //cash docs into InvertedIndex
+        auto write_words_into_collect = [&](const std::string &data){
+            mutex_vector_collection.lock();
+            //std::cout << std::this_thread::get_id() << std::endl;
+            docs.emplace_back(data);
+            mutex_vector_collection.unlock();
             std::string one_word;
-            std::stringstream str(this->docs[doc]);
-
-            mutex_vector.lock();
+            std::stringstream str(data);
             while (str >> one_word) {
+                mutex_vector_collection.lock();
                 temp_string_vector.push_back(one_word);
+                mutex_vector_collection.unlock();
             }
-            ++doc;
-            mutex_vector.unlock();
-
-        }));
-
-
-    }
-
+        };
+        //
+        threadVector.emplace_back(std::thread(write_words_into_collect,_doc));}
+    //will join threads
     for (auto i=0; i<threadVector.size();++i) {
         threadVector[i].join();
     }
@@ -60,14 +57,6 @@ void InvertedIndex::UpdateDocumentBase(std::vector<std::string> input_docs) {
     //start countWords by sorted vector
     for (const auto &word : temp_string_vector) {
         freq_dictionary[word]= this->GetWordCount(word);
-    }
-
-    for (const auto &i : freq_dictionary) {
-        std::cout << i.first << ' ';
-        for (const auto &j : i.second) {
-            std::cout << '{' << j.doc_id << ',' << j.count << '}' << ' ';
-        }
-        std::cout << std::endl;
     }
 }
 
@@ -89,4 +78,14 @@ std::vector<Entry> InvertedIndex::GetWordCount(const std::string &word) {
     }
 
     return temp_container;
+}
+
+void InvertedIndex::print_freq_dictionary() {
+    for (const auto &i : freq_dictionary) {
+        std::cout << i.first << ' ';
+        for (const auto &j : i.second) {
+            std::cout << '{' << j.doc_id << ',' << j.count << '}' << ' ';
+        }
+        std::cout << std::endl;
+    }
 }
