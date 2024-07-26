@@ -1,8 +1,8 @@
 #include <iostream>
-#include "ConverterJSON.h"
-#include "InvertedIndex.h"
+#include "../include/ConverterJSON.h"
+#include "../include/InvertedIndex.h"
 #include <sstream>
-#include "Timer.h"
+#include "../include/Timer.h"
 
 
 

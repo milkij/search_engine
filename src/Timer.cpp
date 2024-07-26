@@ -2,7 +2,7 @@
 // Created by Александр Широков on 25.07.2024.
 //
 
-#include "Timer.h"
+#include "../include/Timer.h"
 
 Timer::Timer() {
     begin_time = std::time(nullptr);

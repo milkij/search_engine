@@ -7,7 +7,7 @@
 
 #pragma once
 #include <iostream>
-#include <nlohmann/json.hpp>
+#include "nlohmann/json.hpp"
 #include <fstream>
 #include <vector>
 #include <string>
@@ -38,9 +38,9 @@ public:
     //
 private:
     /*PATHS*/
-    const std::string configJsonPath = "..//config.json";
-    const std::string requestsJsonPath = "..//requests.json";
-    const std::string answersJsonPath = "..//answers.json";
+    const std::string configJsonPath = "config.json";
+    const std::string requestsJsonPath = "requests.json";
+    const std::string answersJsonPath = "answers.json";
 
     /*CONFIG DATA*/
     std::string appName;

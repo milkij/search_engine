@@ -2,7 +2,7 @@
 // Created by Александр Широков on 30.03.2024.
 //
 #pragma once
-#include "ConverterJSON.h"
+#include "../include/ConverterJSON.h"
 #include <sstream>
 #include <algorithm>
 #include <filesystem>
