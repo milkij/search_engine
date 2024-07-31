@@ -3,14 +3,14 @@
 
 using namespace std;
 void TestInvertedIndexFunctionality(
-        const vector<string>& docs,
-        const vector<string>& requests,
+        const vector<string>& test_docs,
+        const vector<string>& test_requests,
         const std::vector<vector<Entry>>& expected
 ) {
     std::vector<std::vector<Entry>> result;
     InvertedIndex idx;
-    idx.UpdateDocumentBase(docs);
-    for(auto& request : requests) {
+    idx.UpdateDocumentBase(test_docs);
+    for(auto& request : test_requests) {
         std::vector<Entry> word_count = idx.GetWordCount(request);
         result.push_back(word_count);
     }
@@ -34,23 +34,25 @@ TEST(TestCaseInvertedIndex, TestBasic) {
 }
 
 TEST(TestCaseInvertedIndex, TestBasic2) {
-    const vector<string> docs = {
+    const vector<string> tb2_docs = {
             "milk milk milk milk water water water",
             "milk water water",
             "milk milk milk milk milk water water water water water",
-            "americano cappuccino"
+            "americano cappuchino"
     };
     const vector<string> requests = {"milk", "water", "cappuchino"};
     const vector<vector<Entry>> expected = {
             {
                     {0, 4}, {1, 1}, {2, 5}
-            }, {
-                    {0, 2}, {1, 2}, {2, 5}
-            }, {
+            },
+            {
+                    {0, 3}, {1, 2}, {2, 5}
+            },
+            {
                     {3, 1}
             }
     };
-    TestInvertedIndexFunctionality(docs, requests, expected);
+    TestInvertedIndexFunctionality(tb2_docs, requests, expected);
 }
 
 

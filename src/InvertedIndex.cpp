@@ -23,23 +23,23 @@ void InvertedIndex::UpdateDocumentBase(std::vector<std::string> input_docs) {
     //mutex
     std::mutex mutex_vector_collection;
     //
-    for (const auto &_doc : input_docs) {
-        //cash docs into InvertedIndex
-        auto write_words_into_collect = [&](const std::string &data){
+    //for (const auto &in_doc : input_docs) docs.emplace_back(in_doc);
+    //
+    auto write_words_into_collect = [&mutex_vector_collection, &temp_string_vector](const std::string &data){
+        std::string one_word;
+        std::stringstream str(data);
+        while (str >> one_word) {
             mutex_vector_collection.lock();
-            //std::cout << std::this_thread::get_id() << std::endl;
-            docs.emplace_back(data);
+            temp_string_vector.push_back(one_word);
             mutex_vector_collection.unlock();
-            std::string one_word;
-            std::stringstream str(data);
-            while (str >> one_word) {
-                mutex_vector_collection.lock();
-                temp_string_vector.push_back(one_word);
-                mutex_vector_collection.unlock();
-            }
-        };
+        }
+    };
+    //
+    for (const auto &_doc : input_docs) {
+        docs.emplace_back(_doc);
         //
-        threadVector.emplace_back(std::thread(write_words_into_collect,_doc));}
+        threadVector.emplace_back(std::thread(write_words_into_collect,_doc));
+    }
     //will join threads
     for (auto i=0; i<threadVector.size();++i) {
         threadVector[i].join();
