@@ -76,8 +76,6 @@ std::vector<std::vector<RelativeIndex>> SearchServer::search(const std::vector<s
 
 
    //count relevance
-   //todo
-
     auto freq_dict_copy = _index.get_freq_dictionary();
     auto docs_count = _index.get_count_docs();
     int max_abs_frequency=0;
@@ -100,7 +98,7 @@ std::vector<std::vector<RelativeIndex>> SearchServer::search(const std::vector<s
             }
             if(max_abs_frequency<abs_relevance) max_abs_frequency=abs_relevance;
         }
-        for (auto &idx : store_doc_relevance) idx.rank / max_abs_frequency;
+        for (auto &idx : store_doc_relevance) idx.rank /= max_abs_frequency;
         ri_result.emplace_back(store_doc_relevance);
     }
 

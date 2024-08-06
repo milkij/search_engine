@@ -167,26 +167,39 @@ std::vector<std::string> ConverterJSON::GetRequests() {
 
 void ConverterJSON::putAnswers(std::vector<std::vector<RelativeIndex>> &answers) {
 // используем ordered_json при формировании ответа для сохранения порядка вставки ответов
+    std::cout << std::endl;
     std::string answers_root = "answers";
     nlohmann::ordered_json json_answers_file_content;
     std::stringstream request_template;
     size_t answer_id = 0;
     for(auto& answer: answers) {
+
         // формируем шаблон для вставки в json вида request0000
         request_template << "request" << std::setw(4) << std::setfill('0') << ++answer_id;
         json_answers_file_content[answers_root][request_template.str()];
 
-        // создаём вектор для хранения ответов
-        nlohmann::ordered_json json_answer_vector;
-        nlohmann::ordered_json json_answer;
-        for(auto& [doc_id, rank] : answer) {
-            json_answer["doc_id"] = doc_id;
-            // При выводе в файл пренебрегаем точностью
-            json_answer["rank"] = rank;
-            json_answer_vector.push_back(json_answer);
+        bool is_search_result=false;
+        //std::cout << answer.size() << std::endl;
+        if (answer.size()>0) is_search_result=true;
+        nlohmann::ordered_json json_search_result;
+        json_search_result["result"]=is_search_result;
+        json_answers_file_content[answers_root][request_template.str()].push_back(json_search_result);
+
+        if(is_search_result) {
+            // создаём вектор для хранения ответов
+            nlohmann::ordered_json json_answer_vector;
+            nlohmann::ordered_json json_answer;
+            for (auto &[doc_id, rank]: answer) {
+                json_answer["doc_id"] = doc_id;
+                // При выводе в файл пренебрегаем точностью
+                json_answer["rank"] = rank;
+                json_answer_vector.push_back(json_answer);
+            }
+            json_answers_file_content[answers_root][request_template.str()].push_back(json_answer_vector);
+            request_template.str(std::string());
+        } else {
+            request_template.str(std::string());
         }
-        json_answers_file_content[answers_root][request_template.str()].push_back(json_answer_vector);
-        request_template.str(std::string());
     }
 
     std::ofstream answers_file("answers.json");
