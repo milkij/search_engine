@@ -33,12 +33,15 @@ public:
     */
     std::vector<Entry> GetWordCount(const std::string& word);
 
+
 private:
     std::vector<std::string> docs;
     std::map<std::string, std::vector<Entry>> freq_dictionary;
 
-
+public:
     void print_freq_dictionary();
+    std::map<std::string, std::vector<Entry>> get_freq_dictionary();
+    int get_count_docs();
 };
 
 

@@ -5,7 +5,7 @@ set(Src
         "InvertedIndex.cpp"
         "main.cpp"
         "Timer.cpp"
-        )
+        "SearchEngine.cpp")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 message("Каталог сборки: ${CMAKE_BINARY_DIR}")
 add_executable(search_engine ${Src})

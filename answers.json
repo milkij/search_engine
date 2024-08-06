@@ -4,33 +4,68 @@
             [
                 {
                     "doc_id": 0,
-                    "rank": 6.0
+                    "rank": 2.0
                 },
                 {
                     "doc_id": 1,
-                    "rank": 3.0
+                    "rank": 2.0
+                },
+                {
+                    "doc_id": 2,
+                    "rank": 5.0
+                },
+                {
+                    "doc_id": 3,
+                    "rank": 5.0
+                },
+                {
+                    "doc_id": 4,
+                    "rank": 6.0
                 }
             ]
         ],
         "request0002": [
             [
                 {
+                    "doc_id": 2,
+                    "rank": 2.0
+                },
+                {
+                    "doc_id": 3,
+                    "rank": 2.0
+                },
+                {
+                    "doc_id": 4,
+                    "rank": 4.0
+                }
+            ]
+        ],
+        "request0003": [
+            [
+                {
                     "doc_id": 0,
+                    "rank": 2.0
+                },
+                {
+                    "doc_id": 1,
+                    "rank": 2.0
+                },
+                {
+                    "doc_id": 2,
                     "rank": 6.0
                 },
                 {
-                    "doc_id": 1,
-                    "rank": 3.0
+                    "doc_id": 3,
+                    "rank": 6.0
                 },
                 {
-                    "doc_id": 0,
-                    "rank": 2.5999999046325684
-                },
-                {
-                    "doc_id": 1,
-                    "rank": 7.0
+                    "doc_id": 4,
+                    "rank": 6.0
                 }
             ]
+        ],
+        "request0004": [
+            null
         ]
     }
 }

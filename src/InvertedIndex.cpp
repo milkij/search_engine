@@ -89,3 +89,12 @@ void InvertedIndex::print_freq_dictionary() {
         std::cout << std::endl;
     }
 }
+
+std::map<std::string, std::vector<Entry>> InvertedIndex::get_freq_dictionary() {
+    return freq_dictionary;
+}
+
+
+int InvertedIndex::get_count_docs(){
+    return docs.size();
+};

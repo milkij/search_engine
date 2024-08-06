@@ -1,7 +1,6 @@
 //
 // Created by Александр Широков on 30.03.2024.
 //
-#pragma once
 #include "../include/ConverterJSON.h"
 #include <sstream>
 #include <algorithm>
@@ -166,7 +165,7 @@ std::vector<std::string> ConverterJSON::GetRequests() {
 }
 
 
-void ConverterJSON::putAnswers(std::vector<std::vector<std::pair<int, float>>> &answers) {
+void ConverterJSON::putAnswers(std::vector<std::vector<RelativeIndex>> &answers) {
 // используем ordered_json при формировании ответа для сохранения порядка вставки ответов
     std::string answers_root = "answers";
     nlohmann::ordered_json json_answers_file_content;
@@ -190,7 +189,7 @@ void ConverterJSON::putAnswers(std::vector<std::vector<std::pair<int, float>>> &
         request_template.str(std::string());
     }
 
-    std::ofstream answers_file("../answers.json");
+    std::ofstream answers_file("answers.json");
     answers_file << std::setw(4) << json_answers_file_content;
 }
 

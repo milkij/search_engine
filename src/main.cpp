@@ -1,8 +1,9 @@
 #include <iostream>
-#include "../include/ConverterJSON.h"
-#include "../include/InvertedIndex.h"
+#include "ConverterJSON.h"
+#include "InvertedIndex.h"
 #include <sstream>
-#include "../include/Timer.h"
+#include "Timer.h"
+#include "SearchEngine.h"
 
 
 
@@ -15,8 +16,11 @@ int main(int argc, char* argv[]) {
 
     ConverterJSON converterJson =  ConverterJSON();
     InvertedIndex invertedIndex = InvertedIndex();
-    //for (const auto &i : converterJson.GetTextDocuments()) std::cout << i << std::endl;
     invertedIndex.UpdateDocumentBase(converterJson.GetTextDocuments());
+    SearchServer searchServer(invertedIndex);
+    std::vector<std::vector<std::pair<int, float>>> answers;
+    auto RI = searchServer.search(converterJson.GetRequests());
+    converterJson.putAnswers(RI);
 
 
     return 0;
