@@ -2,7 +2,7 @@
 // Created by Александр Широков on 07.07.2024.
 //
 
-#include "../include/InvertedIndex.h"
+#include "InvertedIndex.h"
 #include <sstream>
 #include <algorithm>
 #include <iostream>

@@ -4,6 +4,7 @@
 #include "../include/SearchEngine.h"
 #include "gtest/gtest.h"
 
+
 TEST(TestCaseSearchServer, TestSimple) {
     const std::vector<std::string> docs = {
             "milk milk milk milk water water water",
