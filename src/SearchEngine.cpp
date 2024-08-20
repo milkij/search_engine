@@ -91,8 +91,8 @@ std::vector<std::vector<RelativeIndex>> SearchServer::search(const std::vector<s
         }
         //std::cout << "max_abs_frequency " << max_abs_frequency << std::endl;
         for (auto &rl : rel_index) { //получим Относительная релевантность
-            double temp = rl.rank/max_abs_frequency;
-           rl.rank =  temp;
+
+           rl.rank =  rl.rank/max_abs_frequency;
         }
         ri_result.emplace_back(rel_index);
     }
