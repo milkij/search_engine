@@ -27,7 +27,7 @@ InvertedIndex,
 * чтобы SearchServer мог узнать частоту слов встречаемых в
 запросе
 */
-    SearchServer(InvertedIndex& idx) : _index(idx){ };
+    SearchServer(InvertedIndex& idx, int _responsesLimit) : _index(idx),responses_limit(_responsesLimit){ };
 
 /**
 * Метод обработки поисковых запросов
@@ -41,6 +41,7 @@ requests.json
 
 private:
     InvertedIndex _index;
+    int responses_limit;
 };
 
 #endif //SEARCH_ENGINE_SEARCHENGINE_H

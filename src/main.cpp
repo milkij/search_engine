@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
     ConverterJSON converterJson =  ConverterJSON();
     InvertedIndex invertedIndex = InvertedIndex();
     invertedIndex.UpdateDocumentBase(converterJson.GetTextDocuments());
-    SearchServer searchServer(invertedIndex);
+    SearchServer searchServer(invertedIndex, converterJson.GetResponsesLimit());
     std::vector<std::vector<std::pair<int, float>>> answers;
     auto RI = searchServer.search(converterJson.GetRequests());
     converterJson.putAnswers(RI);

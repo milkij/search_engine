@@ -2,6 +2,7 @@
 // Created by Александр Широков on 31.07.2024.
 //
 #include "SearchEngine.h"
+#include "ConverterJSON.h"
 #include <iostream>
 #include <sstream>
 #include <cmath>
@@ -66,6 +67,7 @@ std::vector<std::vector<RelativeIndex>> SearchServer::search(const std::vector<s
     for (const auto &words_request : sorted_request_words_vector) { //берем регвесты
 
         std::vector<RelativeIndex> rel_index;
+        std::multimap<float,size_t, std::greater<int>> sorted_response_desc;
 
         for (auto _doc_id = 0; _doc_id < docs_count; _doc_id++) { //считаем по документам
             int abs_relevance = 0; //абсолютная релевантность
@@ -82,18 +84,30 @@ std::vector<std::vector<RelativeIndex>> SearchServer::search(const std::vector<s
                 }
             }
             if(abs_relevance>0) {
-                RelativeIndex rl(_doc_id, abs_relevance);
-                rel_index.push_back(rl);
+                std::pair<size_t,float> cur_relevance(abs_relevance,_doc_id);
+                sorted_response_desc.insert(cur_relevance);
                 //std::cout << abs_relevance;
                 //std::cout << std::endl;
                 if (abs_relevance > max_abs_frequency) max_abs_frequency = abs_relevance;
             }
         }
-        //std::cout << "max_abs_frequency " << max_abs_frequency << std::endl;
-        for (auto &rl : rel_index) { //получим Относительная релевантность
 
-           rl.rank =  rl.rank/max_abs_frequency;
+
+        //просто печатаем
+        std::cout << std::endl;
+        auto counter_response_limit=0;
+        for (const auto &data : sorted_response_desc) {
+            ++counter_response_limit;
+            if(counter_response_limit>responses_limit) break;
+            std::cout << "doc_id " << data.second << ':' << data.first;
+            std::cout << std::endl;
+            RelativeIndex rl(data.second, data.first/max_abs_frequency);
+            rel_index.emplace_back(rl);
+
         }
+        std::cout << std::endl;
+
+
         ri_result.emplace_back(rel_index);
     }
     return ri_result;
