@@ -1,2 +1,7 @@
 # Project exclude paths
 /cmake-build-debug/
+/search_engine/
+/tests/GtestTests/
+/.idea/
+/answers.json/
+/Docs/

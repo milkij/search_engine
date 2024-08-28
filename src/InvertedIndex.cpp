@@ -11,10 +11,7 @@
 #include <mutex>
 
 
-Entry::Entry(size_t _doc_id, size_t _count) : doc_id(_doc_id), count(_count)
-{
-    //std::cout << "Struct Entry Constructor \n doc_id = " << _doc_id << "; count = " << _count << std::endl;
-}
+Entry::Entry(size_t _doc_id, size_t _count) : doc_id(_doc_id), count(_count){}
 
 void InvertedIndex::UpdateDocumentBase(std::vector<std::string> input_docs) {
     std::vector<std::string> temp_string_vector;
@@ -22,8 +19,6 @@ void InvertedIndex::UpdateDocumentBase(std::vector<std::string> input_docs) {
     std::vector<std::thread> threadVector;
     //mutex
     std::mutex mutex_vector_collection;
-    //
-    //for (const auto &in_doc : input_docs) docs.emplace_back(in_doc);
     //
     auto write_words_into_collect = [&mutex_vector_collection, &temp_string_vector](const std::string &data){
         std::string one_word;
@@ -63,14 +58,13 @@ void InvertedIndex::UpdateDocumentBase(std::vector<std::string> input_docs) {
 std::vector<Entry> InvertedIndex::GetWordCount(const std::string &word) {
     std::vector<Entry> temp_container;
     int document_id=0;
-    for (const auto doc : docs)
+    for (const auto &doc : docs)
     {
         int word_counter=0;
         std::string one_word;
         std::stringstream str(doc);
         while (str >> one_word) if(one_word == word) ++word_counter;
         if(word_counter>0) {
-            //std::cout << word << '-';
             Entry entry(document_id,word_counter);
             temp_container.emplace_back(entry);
         }

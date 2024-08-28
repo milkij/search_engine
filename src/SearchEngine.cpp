@@ -12,7 +12,7 @@ std::vector<std::vector<RelativeIndex>> SearchServer::search(const std::vector<s
     std::vector<std::vector<std::string>> request_words_vector;
     std::vector<std::vector<std::string>> sorted_request_words_vector;
 
-    //_index.print_freq_dictionary();
+
     //1. Разбивает поисковый запрос на отдельные слова.
     for (auto &req : queries_input) {
         std::vector<std::string> words_vector;
@@ -51,7 +51,6 @@ std::vector<std::vector<RelativeIndex>> SearchServer::search(const std::vector<s
         }
         for (const auto &word : sort_frequency_dictionary)
         {
-            //std::cout << word.first << ' ' << word.second << std::endl;
             sorted_words_vector.emplace_back(word.second);
         }
 
@@ -71,43 +70,30 @@ std::vector<std::vector<RelativeIndex>> SearchServer::search(const std::vector<s
 
         for (auto _doc_id = 0; _doc_id < docs_count; _doc_id++) { //считаем по документам
             int abs_relevance = 0; //абсолютная релевантность
-            //std::cout << "doc_id:"<<_doc_id<<' ';
             for (const auto &request_word: words_request) { //Работаем с каждым словом
 
                 for (const auto &fdc : freq_dict_copy[request_word]){
                     if (fdc.doc_id==_doc_id && freq_dict_copy.contains(request_word)) {
-                        //std::cout << request_word << '{' << fdc.doc_id << ',' << fdc.count << "} ";
                         abs_relevance+=fdc.count;
                     } else {
-                        //std::cout << request_word << '{' << fdc.doc_id << ',' << 0 << "} ";
                     }
                 }
             }
             if(abs_relevance>0) {
                 std::pair<size_t,float> cur_relevance(abs_relevance,_doc_id);
                 sorted_response_desc.insert(cur_relevance);
-                //std::cout << abs_relevance;
-                //std::cout << std::endl;
                 if (abs_relevance > max_abs_frequency) max_abs_frequency = abs_relevance;
             }
         }
-
-
         //просто печатаем
-        std::cout << std::endl;
         auto counter_response_limit=0;
         for (const auto &data : sorted_response_desc) {
             ++counter_response_limit;
             if(counter_response_limit>responses_limit) break;
-            std::cout << "doc_id " << data.second << ':' << data.first;
-            std::cout << std::endl;
             RelativeIndex rl(data.second, data.first/max_abs_frequency);
             rel_index.emplace_back(rl);
 
         }
-        std::cout << std::endl;
-
-
         ri_result.emplace_back(rel_index);
     }
     return ri_result;
