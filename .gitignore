@@ -1,7 +1,9 @@
 # Project exclude paths
 /cmake-build-debug/
-/search_engine/
-/tests/GtestTests/
-/.idea/
-/answers.json/
+/search_engine
+/tests/GtestTests
+/.idea
+/answers.json
 /Docs/
+/.DS_Store
+*.o
